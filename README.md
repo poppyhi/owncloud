@@ -1,4 +1,3 @@
-# 概要
 Ansible playbook.
 owncloudサーバの構築用
 
