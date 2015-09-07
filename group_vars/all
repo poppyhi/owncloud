@@ -1,0 +1,31 @@
+---
+# Variables listed here are applicable to all host groups
+
+# all
+selinux: enforcing
+ntpserver1: ntp.nict.jp
+ntpserver2: ntp.jst.mfeed.ad.jp
+
+# owncloud_role
+owncloud_data: '/exstorage/owncloud'
+owncloud_apps: '/var/www/html/owncloud/apps'
+owncloud_config: '/var/www/html/owncloud/config'
+
+# db
+pg_listen_addresses: localhost
+pg_port: 5432
+pg_shared_buffers: 256MB
+pg_wal_level: archive
+pg_archive_mode: on
+pg_archive_command: "cp %p /var/lib/pgsql/9.4/wal/%f"
+pg_log_directory: /var/log/pgsql
+pg_log_filename: postgresql-%m-%d.log
+pg_log_line_prefix: "%m %p %c-%l %x %q(%u, %d, %r, %a)"
+postgres_password: [postgresユーザのパスワード]
+postgres_home: "/var/lib/pgsql"
+dbtype: 'pgsql'
+dbname: 'owncloud'
+dbuser: 'owncloud'
+dbpass: 'databaseのパスワード'
+dbhost: '/var/run/postgresql'
+dbtableprefix: ''

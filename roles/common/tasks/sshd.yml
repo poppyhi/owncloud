@@ -1,0 +1,14 @@
+---
+- name: set sshd config
+  template: src=sshd_config.j2 dest=/etc/ssh/sshd_config
+  notify: restart sshd
+  tags: sshd_config
+
+- name: set firewalld sshd
+  firewalld: zone=public service=ssh permanent=true state=enabled
+  notify: restart firewalld
+  tags: firewalld
+
+- name: sshd runnning
+  service: name=sshd state=started enabled=yes
+  tags: sshd_config

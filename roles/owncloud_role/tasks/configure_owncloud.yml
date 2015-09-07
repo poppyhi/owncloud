@@ -1,0 +1,57 @@
+---
+- name: get the owncloud repo
+  get_url: url="http://download.opensuse.org/repositories/isv:/ownCloud:/community/CentOS_CentOS-7/isv:ownCloud:community.repo" dest=/etc/yum.repos.d
+  tags: owncloud
+
+- name: install php
+  yum: name={{ item }} state=present
+  with_items:
+    - php
+    - php-mbstring
+    - php-pear
+    - php-fpm
+    - php-common
+    - php-pecl-apcu
+    - php-gd
+  tags: owncloud
+
+- name: install owncloud
+  yum: name=owncloud state=present
+  tags: owncloud
+
+- name: make directory for owncloud_data
+  file: path="{{ owncloud_data }}" state=directory owner=apache group=apache mode=0775
+
+- name: set selinux semanage owncloud
+  command: /sbin/semanage fcontext -a -t httpd_sys_rw_content_t {{ item }}
+  with_items:
+    - "{{ owncloud_data }}"
+    - "{{ owncloud_config }}"
+    - "{{ owncloud_apps }}"
+  tags: selinux
+
+- name: set selinux restorecon owncloud
+  command: /sbin/restorecon {{ item }}
+  with_items:
+    - "{{ owncloud_data }}"
+    - "{{ owncloud_config }}"
+    - "{{ owncloud_apps }}"
+  tags: selinux
+
+- name: set selinux postgres owncloud
+  command: /sbin/setsebool -P httpd_can_network_connect_db 1
+  tags: selinux
+
+- name: set firewalld https
+  firewalld: zone=public service=https permanent=true state=enabled
+  notify: restart firewalld
+  tags: firewalld
+
+- name: set firewalld http
+  firewalld: zone=public service=http permanent=true state=enabled
+  notify: restart firewalld
+  tags: firewalld
+
+- name: httpd runnning
+  service: name=httpd state=started enabled=yes
+  tags: owncloud

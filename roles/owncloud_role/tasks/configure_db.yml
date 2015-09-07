@@ -1,0 +1,78 @@
+---
+- name: install the postgresql rpm from a remote repo
+  yum: name=http://yum.postgresql.org/9.4/redhat/rhel-7-x86_64/pgdg-centos94-9.4-1.noarch.rpm state=present
+  tags: postgres
+
+- name: install postgresql
+  yum: name={{ item }} state=present
+  with_items:
+    - postgresql94
+    - postgresql94-server
+    - postgresql94-devel
+    - postgresql94-contrib
+    - php-pgsql
+    - python
+    - python-devel
+    - python-psycopg2
+  tags: postgres
+
+- name: postgresql initdb
+  shell: /usr/pgsql-9.4/bin/postgresql94-setup initdb
+  tags: postgres
+
+- name: make pg_wal directory
+  file: path=/var/lib/pgsql/9.4/wal state=directory owner=postgres group=postgres mode=0700
+  tags: postgres
+
+- name: make pg_log directory
+  file: path=/var/log/pgsql state=directory owner=postgres group=postgres mode=0700
+  tags: postgres
+
+- name: setting pg_hba.conf trust
+  template: src=pg_hba_trust.conf.j2 dest=/var/lib/pgsql/9.4/data/pg_hba.conf owner=postgres group=postgres
+  notify: restart postgresql
+  tags: postgres
+
+- name: setting postgresql.conf
+  template: src=postgresql.conf.j2 dest=/var/lib/pgsql/9.4/data/postgresql.conf owner=postgres group=postgres
+  notify: restart postgresql
+  tags: postgres
+
+- name: postgresql runnning
+  service: name=postgresql-9.4 state=started enabled=yes
+  tags: postgres
+
+- name: set postgres user password
+  user: name=postgres password={{ postgres_password }} state=present
+  tags: postgres
+
+- name: set pgpass file
+  copy: src=.pgpass dest={{ postgres_home }} owner=postgres group=postgres mode=0600
+  tags: postgres
+
+- name: Set password of DB user postgres
+  command: /bin/psql -c "ALTER USER postgres WITH PASSWORD '"{{ dbpass }}"'"
+  sudo_user: postgres
+  tags: postgres
+  sudo: yes
+
+- name: Create ownCloud PostgreSQL user
+  postgresql_user:
+    name: "{{ dbuser }}"
+    password: "{{ dbpass }}"
+    role_attr_flags: CREATEDB,LOGIN
+  sudo_user: postgres
+  sudo: yes
+
+- name: Create ownCloud database
+  postgresql_db:
+    db: "{{ dbname }}"
+    name: "{{ dbuser }}"
+    owner: "{{ dbuser}}"
+  sudo_user: postgres
+  sudo: yes
+
+- name: setting pg_hba.conf secure
+  template: src=pg_hba.conf.j2 dest=/var/lib/pgsql/9.4/data/pg_hba.conf owner=postgres group=postgres
+  notify: restart postgresql
+  tags: postgres

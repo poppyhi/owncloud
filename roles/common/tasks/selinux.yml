@@ -1,0 +1,9 @@
+---
+## selinux
+- name: disable selinux
+  selinux: policy=targeted state=enforcing
+  tags: selinux
+
+- name: set seliux config
+  template: src=selinux_config.j2 dest=/etc/selinux/config
+  tags: selinux

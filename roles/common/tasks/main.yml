@@ -1,0 +1,6 @@
+---
+# include tasks
+- include: selinux.yml
+- include: sshd.yml
+- include: tools.yml
+- include: ntp.yml

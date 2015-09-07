@@ -1,0 +1,12 @@
+---
+- name: install tools
+  yum: name={{ item }} state=latest
+  with_items:
+    - tmux
+    - git
+    - tar
+    - make
+    - gcc
+    - zlib-devel
+    - openssl-devel
+  tags: tools

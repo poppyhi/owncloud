@@ -1,0 +1,15 @@
+---
+
+- name: apply common configuration to all nodes
+  hosts: owncloud
+  remote_user: ansible
+  sudo: yes
+  roles:
+    - common
+
+- name: owncloud role
+  hosts: owncloud
+  remote_user: ansible
+  sudo: yes
+  roles:
+    - owncloud_role

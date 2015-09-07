@@ -1,0 +1,13 @@
+---
+
+- name: restart sshd
+  service: name=sshd state=restarted
+  tags: sshd_config
+
+- name: restart firewalld
+  service: name=firewalld state=restarted
+  tags: firewalld
+
+- name: restart ntp
+  service: name=ntpd state=restarted
+  tags: ntp
