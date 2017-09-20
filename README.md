@@ -1,5 +1,6 @@
 Ansible playbook.
 owncloudサーバの構築用
 
-group_varsのallで設定値を一括管理しているため、
-そこを要編集。
+検証済みバージョン
+ownCloud: 9.1
+PostgreSql: 9.6

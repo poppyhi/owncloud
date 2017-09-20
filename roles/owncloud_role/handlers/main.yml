@@ -2,12 +2,9 @@
 
 - name: restart firewalld
   service: name=firewalld state=restarted
-  tags: firewalld
 
 - name: restart httpd
   service: name=httpd state=restarted
-  tags: owncloud
 
 - name: restart postgresql
-  service: name=postgresql-9.4 state=restarted enabled=yes
-  tags: postgres
+  service: name=postgresql-9.6 state=restarted enabled=yes

@@ -3,6 +3,10 @@
   get_url: url="http://download.opensuse.org/repositories/isv:/ownCloud:/community/CentOS_CentOS-7/isv:ownCloud:community.repo" dest=/etc/yum.repos.d
   tags: owncloud
 
+- name: install httpd
+  yum: name=httpd state=present
+  tags: owncloud
+
 - name: install php
   yum: name={{ item }} state=present
   with_items:
@@ -20,22 +24,26 @@
   tags: owncloud
 
 - name: make directory for owncloud_data
-  file: path="{{ owncloud_data }}" state=directory owner=apache group=apache mode=0775
+  file: path={{ owncloud_data }} state=directory owner=apache group=apache mode=0775
+
+- name: setting owncloud config
+  template: src=owncloud_config.php.j2 dest=/etc/owncloud/config.php owner=apache group=apache mode=0600
+  notify: restart httpd
+
+- name: make symbolic link
+  file: src=/etc/httpd/conf.d/owncloud-access.conf.avail dest=/etc/httpd/conf.d/z-owncloud-access.conf owner=root group=root state=link
+  notify: restart httpd
 
 - name: set selinux semanage owncloud
   command: /sbin/semanage fcontext -a -t httpd_sys_rw_content_t {{ item }}
   with_items:
     - "{{ owncloud_data }}"
-    - "{{ owncloud_config }}"
-    - "{{ owncloud_apps }}"
   tags: selinux
 
 - name: set selinux restorecon owncloud
   command: /sbin/restorecon {{ item }}
   with_items:
     - "{{ owncloud_data }}"
-    - "{{ owncloud_config }}"
-    - "{{ owncloud_apps }}"
   tags: selinux
 
 - name: set selinux postgres owncloud
